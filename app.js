@@ -10,7 +10,7 @@
     select.value = streams[0].url;
     if (ui.streamInput) ui.streamInput.value = isValidStream(streams[0].url) ? streams[0].url : "";
   }
-}
+
 
 function selectEvent(id) {
   const event = eventById(id);
