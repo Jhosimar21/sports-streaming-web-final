@@ -1,2 +1,166 @@
 const categories=["Todos","Futbol","Baloncesto","Motor","Tenis"];const events=[{id:"arena",title:"Arena Max Sports",league:"Liga Nacional",category:"Futbol",time:"18:00",status:"live",image:"https://images.unsplash.com/photo-1517927033932-b3d18e61fb3a?auto=format&fit=crop&w=1200&q=80",desc:"Canal principal para contenido deportivo autorizado, previas y transmisiones en vivo."},{id:"court",title:"Court Vision",league:"Basket Pro",category:"Baloncesto",time:"20:30",status:"live",image:"https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=1200&q=80",desc:"Cobertura de baloncesto, entrevistas y analisis."},{id:"racing",title:"Velocity Racing",league:"Motor Series",category:"Motor",time:"22:00",status:"soon",image:"https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=1200&q=80",desc:"Carreras, clasificaciones y contenido tecnico autorizado."},{id:"tennis",title:"Tennis Prime",league:"Open Tour",category:"Tenis",time:"Manana 16:00",status:"soon",image:"https://images.unsplash.com/photo-1542144582-1ba00456b5e3?auto=format&fit=crop&w=1200&q=80",desc:"Partidos, resumenes y agenda de tenis."},{id:"fight",title:"Fight Night",league:"Combat Arena",category:"Futbol",time:"23:30",status:"soon",image:"https://images.unsplash.com/photo-1600679472829-3044539ce8ed?auto=format&fit=crop&w=1200&q=80",desc:"Programacion especial y eventos de combate autorizados."},{id:"studio",title:"Studio Deportes",league:"Magazine",category:"Futbol",time:"Todo el dia",status:"live",image:"https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1200&q=80",desc:"Noticias, analisis, previas y programas propios."}];const grid=document.querySelector('#eventGrid');const filters=document.querySelector('#categoryFilters');const agenda=document.querySelector('#agendaList');const channels=document.querySelector('#channelRow');const search=document.querySelector('#searchInput');function renderFilters(active='Todos'){filters.innerHTML=categories.map(c=>'<button class="'+(c===active?'active':'')+'" data-cat="'+c+'">'+c+'</button>').join('');filters.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>renderEvents(b.dataset.cat||'Todos')))}function card(e){return '<article class="event-card"><img src="'+e.image+'" alt="'+e.title+'"><div class="event-card-body"><div class="event-meta"><span>'+e.category+'</span><strong class="status '+e.status+'">'+(e.status==='live'?'En vivo':'Proximo')+'</strong></div><h3>'+e.title+'</h3><p>'+e.league+' - '+e.time+'</p><button data-id="'+e.id+'">Ver evento</button></div></article>'}function renderEvents(cat='Todos'){renderFilters(cat);const term=(search.value||'').toLowerCase();const list=events.filter(e=>(cat==='Todos'||e.category===cat)&&[e.title,e.league,e.category].join(' ').toLowerCase().includes(term));grid.innerHTML=list.map(card).join('');grid.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>selectEvent(btn.dataset.id)))}function selectEvent(id){const e=events.find(x=>x.id===id)||events[0];document.querySelector('#playerTitle').textContent=e.title;document.querySelector('#selectedEvent').textContent=e.title;document.querySelector('#selectedDescription').textContent=e.desc;location.hash='player'}function renderAgenda(){agenda.innerHTML=events.slice(0,5).map(e=>'<article class="agenda-item"><strong>'+e.time+'</strong><div><h3>'+e.title+'</h3><p>'+e.league+' · '+e.category+'</p></div><span>'+(e.status==='live'?'En vivo':'Programado')+'</span></article>').join('')}function renderChannels(){channels.innerHTML=events.slice(0,4).map(e=>'<article class="channel-card" style="background-image:url('+e.image+')"><h3>'+e.title+'</h3><p>'+e.category+' · '+(e.status==='live'?'En vivo':'Proximo')+'</p></article>').join('')}document.querySelector('#themeButton').addEventListener('click',()=>document.body.classList.toggle('dark'));search.addEventListener('input',()=>renderEvents(document.querySelector('.filters .active')?.dataset.cat||'Todos'));renderFilters();renderEvents();renderAgenda();renderChannels();
-let hlsInstance=null;const demoStream='https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';function setStreamStatus(text){const el=document.querySelector('#streamStatus');if(el)el.textContent='Estado: '+text}function loadAuthorizedStream(url){const video=document.querySelector('#videoPlayer');const empty=document.querySelector('#playerEmpty');const quality=document.querySelector('#qualitySelect');if(!video||!url){setStreamStatus('ingresa una URL valida');return}if(hlsInstance){hlsInstance.destroy();hlsInstance=null}video.pause();video.removeAttribute('src');video.load();if(quality)quality.innerHTML='<option>Auto</option>';if(url.endsWith('.m3u8')){if(window.Hls&&window.Hls.isSupported()){hlsInstance=new window.Hls({enableWorker:true,lowLatencyMode:true});hlsInstance.loadSource(url);hlsInstance.attachMedia(video);hlsInstance.on(window.Hls.Events.MANIFEST_PARSED,function(_,data){if(quality&&data.levels){data.levels.forEach(function(level,index){const option=document.createElement('option');option.value=String(index);option.textContent=level.height?level.height+'p':'Nivel '+(index+1);quality.appendChild(option)})}setStreamStatus('HLS cargado');empty&&empty.classList.add('hidden');video.play().catch(function(){})});hlsInstance.on(window.Hls.Events.ERROR,function(_,data){setStreamStatus(data.fatal?'error fatal en stream':'buffering o reconexion')})}else if(video.canPlayType('application/vnd.apple.mpegurl')){video.src=url;empty&&empty.classList.add('hidden');setStreamStatus('HLS nativo cargado');video.play().catch(function(){})}else{setStreamStatus('este navegador no soporta HLS')}}else{video.src=url;empty&&empty.classList.add('hidden');setStreamStatus('MP4 cargado');video.play().catch(function(){})}}document.querySelector('#loadStream')?.addEventListener('click',function(){loadAuthorizedStream(document.querySelector('#streamUrl')?.value.trim())});document.querySelector('#loadDemo')?.addEventListener('click',function(){const input=document.querySelector('#streamUrl');if(input)input.value=demoStream;loadAuthorizedStream(demoStream)});document.querySelector('#playButton')?.addEventListener('click',function(){document.querySelector('#videoPlayer')?.play()});document.querySelector('#pauseButton')?.addEventListener('click',function(){document.querySelector('#videoPlayer')?.pause()});document.querySelector('#volumeSlider')?.addEventListener('input',function(e){const video=document.querySelector('#videoPlayer');if(video)video.volume=Number(e.target.value)});document.querySelector('#fullscreenButton')?.addEventListener('click',function(){document.querySelector('#videoPlayer')?.requestFullscreen?.()});document.querySelector('#qualitySelect')?.addEventListener('change',function(e){if(hlsInstance)hlsInstance.currentLevel=e.target.value==='Auto'?-1:Number(e.target.value)});
+let hlsInstance = null;
+let reconnectTimer = null;
+let manualPause = false;
+let reconnectAttempts = 0;
+
+const demoStream = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
+const savedStreamKey = "sportsstream:lastStreamUrl";
+
+function setStreamStatus(text) {
+  const el = document.querySelector("#streamStatus");
+  if (el) el.textContent = "Estado: " + text;
+}
+
+function saveStreamUrl(url) {
+  if (!url) return;
+  localStorage.setItem(savedStreamKey, url);
+}
+
+function getSavedStreamUrl() {
+  return localStorage.getItem(savedStreamKey) || "";
+}
+
+function scheduleReconnect(reason) {
+  const url = getSavedStreamUrl();
+  if (!url || manualPause) return;
+
+  clearTimeout(reconnectTimer);
+  reconnectAttempts += 1;
+  const delay = Math.min(3000 + reconnectAttempts * 1000, 10000);
+  setStreamStatus("reconectando por " + reason + " en " + Math.round(delay / 1000) + "s");
+
+  reconnectTimer = setTimeout(function () {
+    loadAuthorizedStream(url, true);
+  }, delay);
+}
+
+function resetPlayer(video) {
+  if (hlsInstance) {
+    hlsInstance.destroy();
+    hlsInstance = null;
+  }
+  video.pause();
+  video.removeAttribute("src");
+  video.load();
+}
+
+function loadAuthorizedStream(url, isReconnect = false) {
+  const video = document.querySelector("#videoPlayer");
+  const empty = document.querySelector("#playerEmpty");
+  const quality = document.querySelector("#qualitySelect");
+
+  if (!video || !url) {
+    setStreamStatus("ingresa una URL valida");
+    return;
+  }
+
+  manualPause = false;
+  saveStreamUrl(url);
+  if (!isReconnect) reconnectAttempts = 0;
+  clearTimeout(reconnectTimer);
+
+  resetPlayer(video);
+  if (quality) quality.innerHTML = "<option>Auto</option>";
+
+  if (url.includes(".m3u8")) {
+    if (window.Hls && window.Hls.isSupported()) {
+      hlsInstance = new window.Hls({ enableWorker: true, lowLatencyMode: true });
+      hlsInstance.loadSource(url);
+      hlsInstance.attachMedia(video);
+
+      hlsInstance.on(window.Hls.Events.MANIFEST_PARSED, function (_, data) {
+        if (quality && data.levels) {
+          data.levels.forEach(function (level, index) {
+            const option = document.createElement("option");
+            option.value = String(index);
+            option.textContent = level.height ? level.height + "p" : "Nivel " + (index + 1);
+            quality.appendChild(option);
+          });
+        }
+        setStreamStatus(isReconnect ? "HLS reconectado" : "HLS cargado");
+        empty && empty.classList.add("hidden");
+        video.play().catch(function () {});
+      });
+
+      hlsInstance.on(window.Hls.Events.ERROR, function (_, data) {
+        setStreamStatus(data.fatal ? "error fatal en stream" : "buffering o reconexion");
+        if (data.fatal) scheduleReconnect("error del HLS");
+      });
+    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = url;
+      empty && empty.classList.add("hidden");
+      setStreamStatus(isReconnect ? "HLS nativo reconectado" : "HLS nativo cargado");
+      video.play().catch(function () {});
+    } else {
+      setStreamStatus("este navegador no soporta HLS");
+    }
+  } else {
+    video.src = url;
+    empty && empty.classList.add("hidden");
+    setStreamStatus(isReconnect ? "MP4 reconectado" : "MP4 cargado");
+    video.play().catch(function () {});
+  }
+}
+
+const streamInput = document.querySelector("#streamUrl");
+const savedStream = getSavedStreamUrl();
+if (streamInput && savedStream) streamInput.value = savedStream;
+
+document.querySelector("#loadStream")?.addEventListener("click", function () {
+  loadAuthorizedStream(document.querySelector("#streamUrl")?.value.trim());
+});
+
+document.querySelector("#loadDemo")?.addEventListener("click", function () {
+  const input = document.querySelector("#streamUrl");
+  if (input) input.value = demoStream;
+  loadAuthorizedStream(demoStream);
+});
+
+document.querySelector("#playButton")?.addEventListener("click", function () {
+  manualPause = false;
+  document.querySelector("#videoPlayer")?.play();
+});
+
+document.querySelector("#pauseButton")?.addEventListener("click", function () {
+  manualPause = true;
+  clearTimeout(reconnectTimer);
+  document.querySelector("#videoPlayer")?.pause();
+});
+
+document.querySelector("#volumeSlider")?.addEventListener("input", function (e) {
+  const video = document.querySelector("#videoPlayer");
+  if (video) video.volume = Number(e.target.value);
+});
+
+document.querySelector("#fullscreenButton")?.addEventListener("click", function () {
+  document.querySelector("#videoPlayer")?.requestFullscreen?.();
+});
+
+document.querySelector("#qualitySelect")?.addEventListener("change", function (e) {
+  if (hlsInstance) hlsInstance.currentLevel = e.target.value === "Auto" ? -1 : Number(e.target.value);
+});
+
+const video = document.querySelector("#videoPlayer");
+if (video) {
+  video.addEventListener("playing", function () {
+    reconnectAttempts = 0;
+    setStreamStatus("reproduciendo");
+  });
+  video.addEventListener("pause", function () {
+    if (!manualPause && !video.ended) scheduleReconnect("pausa inesperada");
+  });
+  video.addEventListener("ended", function () {
+    scheduleReconnect("fin del video");
+  });
+  video.addEventListener("error", function () {
+    scheduleReconnect("error del video");
+  });
+  video.addEventListener("stalled", function () {
+    scheduleReconnect("stream detenido");
+  });
+  video.addEventListener("waiting", function () {
+    setStreamStatus("buffering");
+  });
+}
+
