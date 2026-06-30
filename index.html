@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Plataforma profesional de streaming deportivo autorizado para web y futura app movil." />
+  <title>SportsStream Pro - Vista final</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#home"><span>SP</span><strong>SportsStream Pro</strong></a>
+    <nav class="nav"><a href="#eventos">Eventos</a><a href="#agenda">Agenda</a><a href="#canales">Canales</a><a href="#admin">Admin</a></nav>
+    <div class="top-actions"><label class="search"><span>Buscar</span><input id="searchInput" type="search" placeholder="Canal, liga o evento" /></label><button id="themeButton" class="icon-button" type="button">◐</button><button class="login-button" type="button">Ingresar</button></div>
+  </header>
+  <main id="home">
+    <section class="hero">
+      <div class="hero-copy"><span class="live-badge">En vivo ahora</span><h1>Tu plataforma profesional de streaming deportivo</h1><p>Una experiencia moderna para ver eventos autorizados, administrar canales, programar agenda y preparar la misma base para una futura app movil.</p><div class="hero-actions"><a class="primary" href="#player">Ver transmision</a><a class="secondary" href="#eventos">Explorar eventos</a></div></div>
+      <aside class="hero-panel"><div class="score-card"><span>Final Apertura</span><strong>18:00</strong><p>Arena Max Sports</p></div><div class="signal-card"><span>Estado del sistema</span><strong>12 canales activos</strong><p>CDN, HLS y API listos para web y movil.</p></div></aside>
+    </section>
+    <section class="quick-stats"><article><span>Usuarios activos</span><strong>12.8K</strong></article><article><span>Eventos hoy</span><strong>28</strong></article><article><span>Canales HD</span><strong>16</strong></article><article><span>Latencia objetivo</span><strong>&lt; 8s</strong></article></section>
+    <section class="section" id="eventos"><div class="section-head"><div><span>Catalogo</span><h2>Eventos destacados</h2></div><div class="filters" id="categoryFilters"></div></div><div class="event-grid" id="eventGrid"></div></section>
+    <section class="watch-layout" id="player"><div class="player-shell"><div class="player-screen"><video id="videoPlayer" controls playsinline poster="https://images.unsplash.com/photo-1519766304817-4f37bda74a26?auto=format&fit=crop&w=1600&q=80"></video><div class="player-empty" id="playerEmpty"><div class="play-circle">▶</div><span id="playerTitle">Arena Max Sports</span><small>Pega una URL HLS/MP4 autorizada o usa el demo.</small></div></div><div class="stream-loader"><input id="streamUrl" type="url" placeholder="https://tu-cdn-autorizado/evento/index.m3u8"/><button id="loadStream" type="button">Cargar stream</button><button id="loadDemo" type="button">Probar demo HLS</button></div><div class="player-controls"><button id="playButton" type="button">▶</button><button id="pauseButton" type="button">Ⅱ</button><label>Volumen <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="0.72" /></label><select id="qualitySelect"><option>Auto</option></select><button id="fullscreenButton" type="button">Pantalla completa</button></div></div><aside class="technical-panel"><span>Informacion tecnica</span><h2 id="selectedEvent">Arena Max Sports</h2><p id="selectedDescription">Canal principal para contenido deportivo autorizado, previas y transmisiones en vivo.</p><ul><li>HLS adaptable con hls.js</li><li>MP4 nativo compatible</li><li>Reconexión según soporte de la fuente</li><li>Compatible con futura app Kotlin Media3</li></ul><p class="stream-note" id="streamStatus">Estado: esperando fuente autorizada.</p></aside></section>
+    <section class="section" id="agenda"><div class="section-head"><div><span>Programacion</span><h2>Agenda del dia</h2></div><button class="refresh" type="button">Actualizar agenda</button></div><div class="agenda-list" id="agendaList"></div></section>
+    <section class="channels-band" id="canales"><div class="section-head"><div><span>Canales</span><h2>Senales disponibles</h2></div></div><div class="channel-row" id="channelRow"></div></section>
+    <section class="admin-preview" id="admin"><div class="admin-copy"><span>Panel administrativo</span><h2>Gestion completa para operar la plataforma</h2><p>Usuarios, roles, canales, categorias, eventos, agenda, imagenes, configuraciones, logs y notificaciones.</p></div><div class="admin-grid"><article><strong>Usuarios</strong><span>Roles y seguridad JWT</span></article><article><strong>Canales</strong><span>Streams autorizados</span></article><article><strong>Agenda</strong><span>JSON, API y carga manual</span></article><article><strong>Logs</strong><span>Auditoria operativa</span></article></div></section>
+    <section class="mobile-ready"><div><span>Listo para app futura</span><h2>La web queda pensada para compartir API con Android</h2><p>Los mismos recursos que usa la web pueden alimentar una app Kotlin con Media3: eventos, canales, favoritos, historial, agenda y tokens JWT.</p></div><pre><code>GET /api/events
+GET /api/channels
+GET /api/agenda?date=2026-06-30
+POST /api/auth/login
+POST /api/favorites
+GET /api/player/{eventId}</code></pre></section>
+  </main>
+  <footer class="footer"><strong>SportsStream Pro</strong><span>Solo para contenido propio, licenciado o autorizado.</span></footer>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.15/dist/hls.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
